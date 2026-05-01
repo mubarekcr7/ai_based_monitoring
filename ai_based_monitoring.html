@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SurgAI Platform — Connected Surgical Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#070b14;--bg2:#0c1220;--bg3:#111827;
+  --panel:#131d2e;--panel2:#172035;
+  --border:rgba(100,180,255,0.12);--border2:rgba(100,180,255,0.22);
+  --accent:#2d7dff;--accent2:#00e5b0;--accent3:#7c5cfc;
+  --danger:#ff3d57;--warn:#ffb020;--ok:#00d48a;--info:#38bdf8;
+  --text:#dce8f5;--text2:#8fa3bd;--text3:#4a607a;
+  --mono:'DM Mono',monospace;--sans:'DM Sans',sans-serif;--display:'Syne',sans-serif;
+  --r:10px;--r2:14px;
+}
+
+body{font-family:var(--sans);background:var(--bg);color:var(--text);min-height:100vh;overflow:hidden;}
+
+/* ═══ ROLE SELECTOR (LANDING) ═══════════════════════════════ */
+#landing{
+  position:fixed;inset:0;z-index:1000;
+  background:linear-gradient(135deg,#050810 0%,#080f1e 50%,#050810 100%);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:0;
+}
+.land-logo{display:flex;align-items:center;gap:12px;margin-bottom:48px;}
+.land-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 0 40px rgba(45,125,255,.4);}
+.land-title{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-1px;}
+.land-title span{color:var(--accent2);}
+.land-sub{font-size:13px;color:var(--text2);margin-bottom:52px;text-align:center;max-width:380px;line-height:1.7;}
+.role-cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+.role-card{
+  width:220px;background:var(--panel);border:1px solid var(--border2);border-radius:18px;
+  padding:28px 22px;cursor:pointer;transition:all .25s;text-align:center;
+  position:relative;overflow:hidden;
+}
+.role-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .25s;}
+.role-card:nth-child(1)::before{background:radial-gradient(circle at 50% 0%,rgba(45,125,255,.15),transparent 70%);}
+.role-card:nth-child(2)::before{background:radial-gradient(circle at 50% 0%,rgba(0,229,176,.15),transparent 70%);}
+.role-card:nth-child(3)::before{background:radial-gradient(circle at 50% 0%,rgba(124,92,252,.15),transparent 70%);}
+.role-card:hover{transform:translateY(-4px);border-color:rgba(100,180,255,.4);}
+.role-card:hover::before{opacity:1;}
+.role-icon{font-size:42px;margin-bottom:14px;display:block;}
+.role-name{font-family:var(--display);font-size:17px;font-weight:700;margin-bottom:6px;}
+.role-desc{font-size:12px;color:var(--text2);line-height:1.6;}
+.role-badge{display:inline-block;margin-top:14px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;}
+.rb-1{background:rgba(45,125,255,.15);color:var(--accent);}
+.rb-2{background:rgba(0,229,176,.15);color:var(--accent2);}
+.rb-3{background:rgba(124,92,252,.15);color:var(--accent3);}
+
+/* ═══ APP SHELL ═══════════════════════════════════════════════ */
+#app{display:none;flex-direction:column;height:100vh;}
+.topbar{
+  height:52px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;gap:14px;flex-shrink:0;
+  position:relative;z-index:100;
+}
+.topbar-logo{display:flex;align-items:center;gap:8px;margin-right:8px;}
+.topbar-logo-icon{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px;}
+.topbar-logo-text{font-family:var(--display);font-size:15px;font-weight:800;letter-spacing:-.5px;}
+.topbar-logo-text span{color:var(--accent2);}
+.topbar-divider{width:1px;height:28px;background:var(--border);margin:0 4px;}
+.view-tabs{display:flex;gap:3px;}
+.view-tab{
+  display:flex;align-items:center;gap:7px;padding:6px 14px;border-radius:8px;
+  font-size:12px;font-weight:500;cursor:pointer;border:none;
+  background:transparent;color:var(--text2);transition:all .2s;
+}
+.view-tab.active{background:rgba(45,125,255,.15);color:var(--accent);}
+.view-tab:hover:not(.active){background:rgba(255,255,255,.05);color:var(--text);}
+.view-tab-dot{width:7px;height:7px;border-radius:50%;}
+.dot-blue{background:var(--accent);}
+.dot-teal{background:var(--accent2);}
+.dot-purple{background:var(--accent3);}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.live-pill{display:flex;align-items:center;gap:6px;background:rgba(0,212,138,.1);border:1px solid rgba(0,212,138,.25);border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600;color:var(--ok);}
+.live-dot-anim{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:livepulse 1.2s ease-in-out infinite;}
+@keyframes livepulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.7)}}
+.op-time{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.role-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px;}
+.rc-1{background:rgba(45,125,255,.12);color:var(--accent);}
+.rc-2{background:rgba(0,229,176,.12);color:var(--accent2);}
+.rc-3{background:rgba(124,92,252,.12);color:var(--accent3);}
+#mute-btn{background:rgba(255,255,255,.06);border:1px solid var(--border);color:var(--text2);padding:4px 10px;border-radius:7px;cursor:pointer;font-size:11px;font-family:var(--sans);}
+#mute-btn:hover{background:rgba(255,255,255,.1);}
+
+/* ═══ PAGES ═══════════════════════════════════════════════════ */
+.pages{flex:1;overflow:hidden;position:relative;}
+.page{position:absolute;inset:0;overflow-y:auto;display:none;}
+.page.active{display:block;}
+.page::-webkit-scrollbar{width:4px;}
+.page::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ═══ SHARED COMPONENTS ═══════════════════════════════════════ */
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);}
+.card-title{font-size:10px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;}
+.b-ok{background:rgba(0,212,138,.12);color:var(--ok);border:1px solid rgba(0,212,138,.25);}
+.b-warn{background:rgba(255,176,32,.12);color:var(--warn);border:1px solid rgba(255,176,32,.25);}
+.b-crit{background:rgba(255,61,87,.12);color:var(--danger);border:1px solid rgba(255,61,87,.25);animation:blink .75s ease-in-out infinite;}
+.b-info{background:rgba(56,189,248,.12);color:var(--info);border:1px solid rgba(56,189,248,.2);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* ═══ PAGE 1: OR MONITOR ══════════════════════════════════════ */
+.or-layout{display:grid;grid-template-columns:1fr 1fr 260px;grid-template-rows:auto auto auto;gap:10px;padding:12px;height:100%;box-sizing:border-box;}
+
+.vitals-strip{grid-column:1/3;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.vcard{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);padding:12px 14px;position:relative;overflow:hidden;cursor:default;}
+.vcard::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--vc,var(--ok));opacity:.9;}
+.vcard-lbl{font-size:9px;font-weight:600;letter-spacing:1.3px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.vcard-val{font-family:var(--mono);font-size:30px;font-weight:500;line-height:1;color:var(--vc,var(--ok));transition:color .3s;}
+.vcard-unit{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px;}
+.vcard-status{position:absolute;top:12px;right:12px;width:7px;height:7px;border-radius:50%;background:var(--vc,var(--ok));}
+
+.ecg-card{grid-column:1;background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.ecg-inner{padding:10px 14px 8px;height:100px;position:relative;}
+.ecg-label{position:absolute;top:12px;left:16px;font-family:var(--mono);font-size:9px;color:var(--ok);opacity:.5;}
+#ecg-cv{width:100%;height:72px;display:block;}
+
+.waveform-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;}
+.wf-inner{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--border);}
+.wf-cell{background:var(--panel);padding:8px 12px;height:80px;}
+.wf-lbl{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:4px;}
+canvas.wf{width:100%;height:46px;display:block;}
+
+.alerts-col{grid-column:3;grid-row:1/4;display:flex;flex-direction:column;gap:8px;}
+.alert-list{max-height:200px;overflow-y:auto;}
+.alert-list::-webkit-scrollbar{width:2px;}
+.alert-list::-webkit-scrollbar-thumb{background:var(--border2);}
+.alert-row{display:flex;gap:8px;padding:9px 12px;border-bottom:1px solid var(--border);align-items:flex-start;animation:fadein .3s ease;}
+@keyframes fadein{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.adot{width:6px;height:6px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.adot-ok{background:var(--ok);}
+.adot-warn{background:var(--warn);}
+.adot-crit{background:var(--danger);animation:livepulse .7s infinite;}
+.atitle{font-size:11px;font-weight:500;color:var(--text);}
+.asub{font-size:9px;color:var(--text3);font-family:var(--mono);}
+
+.ai-box{padding:12px;}
+.ai-row{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.ai-spin{width:12px;height:12px;border:2px solid rgba(45,125,255,.2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ai-lbl{font-size:9px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);}
+.ai-text{font-size:11px;color:var(--text2);line-height:1.6;}
+.ai-sug{margin-top:7px;padding:7px 9px;background:rgba(45,125,255,.07);border-left:2px solid var(--accent);border-radius:0 6px 6px 0;font-size:10px;color:var(--text);line-height:1.5;}
+
+.drug-row{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);}
+.drug-nm{font-size:11px;font-weight:500;flex:1;color:var(--text);}
+.dbar-w{width:64px;height:5px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.dbar{height:100%;border-radius:3px;transition:width 1.5s ease;}
+.dpct{font-family:var(--mono);font-size:10px;color:var(--text3);min-width:26px;text-align:right;}
+.dorder-btn{font-size:9px;padding:3px 7px;border-radius:5px;border:1px solid rgba(45,125,255,.3);background:rgba(45,125,255,.08);color:var(--accent);cursor:pointer;transition:all .2s;font-family:var(--sans);}
+.dorder-btn:hover{background:rgba(45,125,255,.2);}
+.dorder-btn.done{border-color:rgba(0,212,138,.3);background:rgba(0,212,138,.08);color:var(--ok);cursor:default;}
+
+.phases-row{display:flex;padding:10px 12px;gap:4px;}
+.ph{flex:1;text-align:center;padding:7px 2px;border-radius:7px;background:rgba(255,255,255,.025);border:1px solid var(--border);transition:all .3s;}
+.ph.active{background:rgba(45,125,255,.1);border-color:rgba(45,125,255,.35);}
+.ph-n{font-family:var(--mono);font-size:8px;color:var(--text3);margin-bottom:2px;}
+.ph-t{font-size:9px;font-weight:600;color:var(--text3);}
+.ph.active .ph-t,.ph.active .ph-n{color:var(--accent);}
+
+/* ═══ PAGE 2: DOCTOR LIVE VIEW ════════════════════════════════ */
+.doctor-layout{display:grid;grid-template-columns:1fr 320px;grid-template-rows:1fr auto;gap:10px;padding:12px;height:100%;box-sizing:border-box;}
+
+.video-main{background:#000;border-radius:var(--r2);overflow:hidden;position:relative;min-height:400px;}
+.surgical-svg{width:100%;height:100%;display:block;}
+.video-overlay-grad{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,50,15,.06),rgba(0,0,0,.55));}
+.vid-hud{position:absolute;inset:0;pointer-events:none;}
+.cbracket{position:absolute;width:22px;height:22px;border-color:rgba(45,125,255,.55);border-style:solid;}
+.cbtl{top:12px;left:12px;border-width:2px 0 0 2px;}
+.cbtr{top:12px;right:12px;border-width:2px 2px 0 0;}
+.cbbl{bottom:12px;left:12px;border-width:0 0 2px 2px;}
+.cbbr{bottom:12px;right:12px;border-width:0 2px 2px 0;}
+.vid-info-l{position:absolute;top:16px;left:16px;font-family:var(--mono);font-size:10px;color:rgba(100,180,255,.8);line-height:1.9;}
+.vid-info-r{position:absolute;top:16px;right:16px;font-family:var(--mono);font-size:10px;color:rgba(100,180,255,.8);text-align:right;line-height:1.9;}
+.scan-line{position:absolute;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(0,229,176,.65),transparent);animation:scan 4.5s ease-in-out infinite;}
+@keyframes scan{0%{top:8%;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:92%;opacity:0}}
+.det-box{position:absolute;border:1px solid rgba(0,229,176,.65);border-radius:3px;}
+.det-bar{position:absolute;top:-3px;left:0;height:2px;background:var(--accent2);border-radius:1px;}
+.det-lbl{position:absolute;bottom:-18px;left:0;font-family:var(--mono);font-size:9px;color:var(--accent2);white-space:nowrap;background:rgba(0,0,0,.75);padding:1px 5px;border-radius:2px;}
+.vid-bottom{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:10px;color:rgba(0,229,176,.75);white-space:nowrap;}
+.vid-rec{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;background:rgba(255,61,87,.15);border:1px solid rgba(255,61,87,.3);border-radius:20px;padding:3px 12px;font-family:var(--mono);font-size:10px;color:var(--danger);}
+.rec-dot{width:6px;height:6px;border-radius:50%;background:var(--danger);animation:livepulse .8s infinite;}
+
+/* VITALS OVERLAY on video */
+.vitals-overlay{position:absolute;bottom:40px;left:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;width:220px;}
+.vov{background:rgba(7,11,20,.82);border:1px solid rgba(45,125,255,.25);border-radius:8px;padding:6px 10px;backdrop-filter:blur(4px);}
+.vov-lbl{font-size:9px;color:var(--text3);font-family:var(--mono);}
+.vov-val{font-family:var(--mono);font-size:18px;font-weight:500;color:var(--vc2,var(--ok));}
+
+/* Doctor right panel */
+.doc-right{display:flex;flex-direction:column;gap:8px;overflow-y:auto;}
+.doc-right::-webkit-scrollbar{width:2px;}
+.alert-ticker{background:rgba(255,61,87,.06);border:1px solid rgba(255,61,87,.15);border-radius:var(--r2);padding:12px;}
+.ticker-row{display:flex;gap:8px;align-items:flex-start;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.ticker-row:last-child{border:none;}
+.ticker-dot{width:7px;height:7px;border-radius:50%;margin-top:3px;flex-shrink:0;}
+.ticker-txt{font-size:11px;color:var(--text);line-height:1.5;}
+.ticker-time{font-family:var(--mono);font-size:10px;color:var(--text3);}
+
+/* ═══ PAGE 3: PHARMACIST ══════════════════════════════════════ */
+.pharm-layout{padding:14px;display:grid;grid-template-columns:1fr 300px;gap:10px;min-height:100%;}
+.pharm-main{display:flex;flex-direction:column;gap:10px;}
+
+.pharm-hero{background:linear-gradient(135deg,rgba(124,92,252,.1),rgba(45,125,255,.08));border:1px solid rgba(124,92,252,.2);border-radius:var(--r2);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.ph-text h2{font-family:var(--display);font-size:18px;font-weight:800;letter-spacing:-.4px;margin-bottom:3px;}
+.ph-text h2 span{color:var(--accent3);}
+.ph-text p{font-size:12px;color:var(--text2);}
+.ph-stats{display:flex;gap:10px;}
+.ph-stat{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center;}
+.ph-stat-v{font-family:var(--mono);font-size:20px;font-weight:500;color:var(--accent3);}
+.ph-stat-l{font-size:9px;color:var(--text3);margin-top:2px;letter-spacing:.5px;}
+
+/* Incoming orders */
+.incoming-orders{display:flex;flex-direction:column;gap:8px;}
+.order-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);overflow:hidden;transition:border-color .3s;animation:fadein .4s ease;}
+.order-card.urgent{border-color:rgba(255,61,87,.35);}
+.order-card.high{border-color:rgba(255,176,32,.3);}
+.order-card.done{border-color:rgba(0,212,138,.2);opacity:.7;}
+.oc-hdr{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border);}
+.oc-drug{font-family:var(--display);font-size:14px;font-weight:700;}
+.oc-body{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:center;padding:11px 14px;}
+.oc-meta{font-size:11px;color:var(--text2);line-height:1.8;}
+.oc-meta strong{color:var(--text);font-weight:500;}
+.oc-actions{display:flex;flex-direction:column;gap:6px;}
+.ac-btn{padding:7px 14px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:none;font-family:var(--sans);transition:all .2s;white-space:nowrap;}
+.ac-confirm{background:linear-gradient(135deg,var(--ok),#00a86b);color:#fff;box-shadow:0 3px 12px rgba(0,212,138,.25);}
+.ac-confirm:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(0,212,138,.35);}
+.ac-dispatch{background:linear-gradient(135deg,var(--accent),#1a5fd4);color:#fff;box-shadow:0 3px 12px rgba(45,125,255,.25);}
+.ac-dispatch:hover{transform:translateY(-1px);}
+.ac-done{background:rgba(0,212,138,.08);color:var(--ok);border:1px solid rgba(0,212,138,.2);cursor:default;}
+
+/* Inventory */
+.inv-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);}
+.inv-name{font-size:12px;font-weight:500;flex:1;}
+.inv-bar-w{width:80px;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.inv-bar{height:100%;border-radius:3px;transition:width .8s ease;}
+.inv-pct{font-family:var(--mono);font-size:11px;min-width:30px;text-align:right;}
+.inv-lbl{font-size:9px;padding:2px 6px;border-radius:6px;font-weight:600;}
+.inv-ok{background:rgba(0,212,138,.1);color:var(--ok);}
+.inv-low{background:rgba(255,176,32,.12);color:var(--warn);}
+.inv-crit{background:rgba(255,61,87,.12);color:var(--danger);animation:blink .8s infinite;}
+
+/* Pharm right */
+.pharm-right{display:flex;flex-direction:column;gap:8px;}
+.pharm-log{max-height:260px;overflow-y:auto;}
+.pharm-log::-webkit-scrollbar{width:2px;}
+.log-row{display:flex;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px;animation:fadein .3s ease;}
+.log-time{font-family:var(--mono);font-size:9px;color:var(--text3);min-width:48px;flex-shrink:0;padding-top:1px;}
+.log-txt{color:var(--text2);line-height:1.5;}
+.log-txt strong{color:var(--text);}
+
+/* Contact card */
+.contact-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--r2);padding:14px;}
+.contact-title{font-size:9px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase;color:var(--text3);margin-bottom:10px;}
+.ct-row{display:flex;align-items:center;gap:9px;padding:6px 0;border-bottom:1px solid var(--border);}
+.ct-row:last-child{border:none;}
+.ct-icon{width:26px;height:26px;background:rgba(124,92,252,.1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.ct-lbl{font-size:10px;color:var(--text3);}
+.ct-val{font-size:11px;font-weight:500;color:var(--text);}
+
+/* ═══ MODAL ═══════════════════════════════════════════════════ */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:800;display:none;align-items:center;justify-content:center;backdrop-filter:blur(6px);}
+.modal-bg.show{display:flex;}
+.modal{background:var(--bg3);border:1px solid var(--border2);border-radius:18px;padding:26px;width:420px;max-width:92vw;animation:modalin .28s ease;}
+@keyframes modalin{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:scale(1)}}
+.modal-title{font-family:var(--display);font-size:17px;font-weight:800;margin-bottom:3px;}
+.modal-sub{font-size:12px;color:var(--text2);margin-bottom:20px;}
+.mf{margin-bottom:13px;}
+.mf label{display:block;font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--text3);margin-bottom:5px;}
+.mf input,.mf select,.mf textarea{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text);font-family:var(--sans);font-size:13px;outline:none;transition:border .2s;}
+.mf input:focus,.mf select:focus,.mf textarea:focus{border-color:rgba(45,125,255,.5);}
+.mf select option{background:var(--bg3);}
+.mf textarea{height:68px;resize:none;}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.m-actions{display:flex;gap:10px;margin-top:20px;}
+.m-cancel{flex:1;padding:10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-size:13px;cursor:pointer;font-family:var(--sans);}
+.m-cancel:hover{background:rgba(255,255,255,.05);}
+.m-send{flex:2;padding:10px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--accent),#1a5fd4);color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);box-shadow:0 4px 14px rgba(45,125,255,.3);}
+.m-send:hover{transform:translateY(-1px);}
+
+/* ═══ TOAST ════════════════════════════════════════════════════ */
+.toast{position:fixed;top:60px;right:16px;max-width:300px;padding:12px 15px;border-radius:10px;z-index:900;transform:translateX(340px);transition:transform .4s cubic-bezier(.175,.885,.32,1.275);box-shadow:0 8px 30px rgba(0,0,0,.4);pointer-events:none;}
+.toast.show{transform:translateX(0);}
+.toast-title{font-size:13px;font-weight:600;margin-bottom:2px;}
+.toast-sub{font-size:11px;opacity:.85;}
+.toast-ok{background:linear-gradient(135deg,#005c3a,#007a4d);}
+.toast-warn{background:linear-gradient(135deg,#7a4a00,#9e6000);}
+.toast-crit{background:linear-gradient(135deg,#7a0010,#a00018);animation:toastpulse 1.5s ease-in-out infinite;}
+@keyframes toastpulse{0%,100%{box-shadow:0 8px 30px rgba(255,61,87,.3)}50%{box-shadow:0 8px 40px rgba(255,61,87,.6)}}
+
+/* ═══ SOUND INDICATOR ══════════════════════════════════════════ */
+.sound-wave{display:flex;align-items:center;gap:2px;height:16px;}
+.sw-bar{width:3px;background:var(--danger);border-radius:2px;animation:soundbar .6s ease-in-out infinite;}
+.sw-bar:nth-child(1){animation-delay:.0s;height:4px;}
+.sw-bar:nth-child(2){animation-delay:.1s;height:10px;}
+.sw-bar:nth-child(3){animation-delay:.2s;height:16px;}
+.sw-bar:nth-child(4){animation-delay:.15s;height:10px;}
+.sw-bar:nth-child(5){animation-delay:.05s;height:4px;}
+@keyframes soundbar{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  LANDING — ROLE SELECTOR                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="landing">
+  <div class="land-logo">
+    <div class="land-icon">⚕</div>
+    <div class="land-title">SurgAI <span>Platform</span></div>
+  </div>
+  <div class="land-sub">AI-Integrated Surgical Monitoring System — Select your role to enter the connected platform</div>
+  <div class="role-cards">
+    <div class="role-card" onclick="enterApp('or')">
+      <span class="role-icon">🖥️</span>
+      <div class="role-name">OR Monitor</div>
+      <div class="role-desc">Full operating room dashboard. Vitals, ECG, AI alerts, drug tracking and surgical coordination.</div>
+      <div class="role-badge rb-1">Anesthesiologist / OR Team</div>
+    </div>
+    <div class="role-card" onclick="enterApp('doctor')">
+      <span class="role-icon">👨‍⚕️</span>
+      <div class="role-name">Doctor Live View</div>
+      <div class="role-desc">Remote supervising physician view. Live surgical video feed, real-time vitals overlay and alerts.</div>
+      <div class="role-badge rb-2">Attending Physician</div>
+    </div>
+    <div class="role-card" onclick="enterApp('pharmacy')">
+      <span class="role-icon">💊</span>
+      <div class="role-name">Pharmacist</div>
+      <div class="role-desc">Receive drug orders from OR in real-time. Manage inventory and dispatch confirmations.</div>
+      <div class="role-badge rb-3">OR Pharmacist</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  APP SHELL                                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="app" style="display:none;flex-direction:column;height:100vh;">
+
+  <div class="topbar">
+    <div class="topbar-logo">
+      <div class="topbar-logo-icon">⚕</div>
+      <div class="topbar-logo-text">SurgAI <span>Platform</span></div>
+    </div>
+    <div class="topbar-divider"></div>
+    <div class="view-tabs">
+      <button class="view-tab" onclick="switchView('or')" id="tab-or"><span class="view-tab-dot dot-blue"></span>OR Monitor</button>
+      <button class="view-tab" onclick="switchView('doctor')" id="tab-doctor"><span class="view-tab-dot dot-teal"></span>Doctor Live</button>
+      <button class="view-tab" onclick="switchView('pharmacy')" id="tab-pharmacy"><span class="view-tab-dot dot-purple"></span>Pharmacy</button>
+    </div>
+    <div class="topbar-right">
+      <div id="new-order-indicator" style="display:none;align-items:center;gap:6px;background:rgba(124,92,252,.15);border:1px solid rgba(124,92,252,.3);border-radius:20px;padding:3px 11px;font-size:11px;font-weight:600;color:var(--accent3);cursor:pointer;" onclick="switchView('pharmacy')">
+        <div class="sound-wave"><div class="sw-bar"></div><div class="sw-bar"></div><div class="sw-bar"></div><div class="sw-bar"></div><div class="sw-bar"></div></div>
+        New order
+      </div>
+      <div class="live-pill"><div class="live-dot-anim"></div>LIVE</div>
+      <div class="op-time" id="op-clock">02:14:38</div>
+      <div class="role-chip" id="role-chip"></div>
+      <button id="mute-btn" onclick="toggleMute()">🔊 Sound ON</button>
+    </div>
+  </div>
+
+  <div class="pages">
+
+    <!-- ─── PAGE: OR MONITOR ─────────────────────────────────── -->
+    <div class="page" id="page-or">
+      <div class="or-layout">
+
+        <!-- Vitals strip -->
+        <div class="vitals-strip">
+          <div class="vcard" style="--vc:#00d48a"><div class="vcard-lbl">Heart Rate</div><div class="vcard-val" id="v-hr">72</div><div class="vcard-unit">bpm</div><div class="vcard-status"></div></div>
+          <div class="vcard" style="--vc:#2d7dff"><div class="vcard-lbl">SpO₂</div><div class="vcard-val" id="v-spo2">98</div><div class="vcard-unit">%</div><div class="vcard-status"></div></div>
+          <div class="vcard" style="--vc:#00e5b0"><div class="vcard-lbl">Blood Pressure</div><div class="vcard-val" id="v-bp">118/76</div><div class="vcard-unit">mmHg</div><div class="vcard-status"></div></div>
+          <div class="vcard" style="--vc:#ffb020"><div class="vcard-lbl">Temperature</div><div class="vcard-val" id="v-temp">36.7</div><div class="vcard-unit">°C</div><div class="vcard-status"></div></div>
+        </div>
+
+        <!-- Vitals status bar -->
+        <div style="grid-column:1/3;display:flex;justify-content:space-between;align-items:center;padding:0 2px;">
+          <span class="badge b-ok" id="vitals-badge">ALL NORMAL</span>
+          <span style="font-size:10px;color:var(--text3);font-family:var(--mono)">OR-3 · Patient: John D. · Procedure: Laparoscopic Cholecystectomy</span>
+        </div>
+
+        <!-- ECG -->
+        <div class="ecg-card">
+          <div class="card-hdr"><span class="card-title">ECG — Lead II</span><span class="badge b-ok" id="ecg-badge">NSR</span></div>
+          <div class="ecg-inner">
+            <div class="ecg-label">I ▶</div>
+            <canvas id="ecg-cv"></canvas>
+          </div>
+        </div>
+
+        <!-- Waveforms -->
+        <div class="waveform-card">
+          <div class="card-hdr"><span class="card-title">Multi-Parameter Waveforms</span></div>
+          <div class="wf-inner">
+            <div class="wf-cell"><div class="wf-lbl">Respiration</div><canvas class="wf" id="wf-resp"></canvas></div>
+            <div class="wf-cell"><div class="wf-lbl">NIBP Trend</div><canvas class="wf" id="wf-nibp"></canvas></div>
+            <div class="wf-cell"><div class="wf-lbl">SpO₂ Pleth</div><canvas class="wf" id="wf-spo2"></canvas></div>
+          </div>
+        </div>
+
+        <!-- Alerts column -->
+        <div class="alerts-col">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Alert Log</span><span class="badge b-ok" id="alert-badge-or">3 Events</span></div>
+            <div class="alert-list" id="alert-list-or">
+              <div class="alert-row"><div class="adot adot-ok"></div><div><div class="atitle">System initialized</div><div class="asub">All sensors online · 02:00:00</div></div></div>
+              <div class="alert-row"><div class="adot adot-ok"></div><div><div class="atitle">AI model active</div><div class="asub">Anomaly detection ready · 02:00:12</div></div></div>
+              <div class="alert-row"><div class="adot adot-ok"></div><div><div class="atitle">Vitals nominal</div><div class="asub">All in range · 02:05:00</div></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">AI Decision Support</span></div>
+            <div class="ai-box">
+              <div class="ai-row"><div class="ai-spin"></div><div class="ai-lbl">Analyzing</div></div>
+              <div class="ai-text" id="ai-text-or">Monitoring vitals — all parameters within safe operating range.</div>
+              <div class="ai-sug" id="ai-sug-or">Continue current anesthesia. Next review in 12 min.</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr">
+              <span class="card-title">Drug Status</span>
+              <button style="font-size:9px;padding:2px 8px;border-radius:5px;border:1px solid rgba(124,92,252,.3);background:rgba(124,92,252,.08);color:var(--accent3);cursor:pointer;font-family:var(--sans);" onclick="switchView('pharmacy')">Pharmacy →</button>
+            </div>
+            <div id="drug-sidebar">
+              <div class="drug-row"><span class="drug-nm">Propofol</span><div class="dbar-w"><div class="dbar" id="dsb-propofol" style="width:72%;background:var(--ok)"></div></div><span class="dpct">72%</span><button class="dorder-btn" onclick="openOrder('Propofol','propofol','standard')">Order</button></div>
+              <div class="drug-row"><span class="drug-nm">Fentanyl</span><div class="dbar-w"><div class="dbar" id="dsb-fentanyl" style="width:58%;background:var(--ok)"></div></div><span class="dpct">58%</span><button class="dorder-btn" onclick="openOrder('Fentanyl','fentanyl','standard')">Order</button></div>
+              <div class="drug-row"><span class="drug-nm">Rocuronium</span><div class="dbar-w"><div class="dbar" id="dsb-rocuronium" style="width:31%;background:var(--warn)"></div></div><span class="dpct" style="color:var(--warn)">31%</span><button class="dorder-btn" id="dsb-btn-rocuronium" onclick="openOrder('Rocuronium','rocuronium','urgent')">Order</button></div>
+              <div class="drug-row"><span class="drug-nm">Epinephrine</span><div class="dbar-w"><div class="dbar" id="dsb-epinephrine" style="width:85%;background:var(--ok)"></div></div><span class="dpct">85%</span><button class="dorder-btn" onclick="openOrder('Epinephrine','epinephrine','standard')">Order</button></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Surgical Phase</span></div>
+            <div class="phases-row">
+              <div class="ph"><div class="ph-n">1</div><div class="ph-t">Prep</div></div>
+              <div class="ph active"><div class="ph-n">2</div><div class="ph-t">Incision</div></div>
+              <div class="ph"><div class="ph-n">3</div><div class="ph-t">Procedure</div></div>
+              <div class="ph"><div class="ph-n">4</div><div class="ph-t">Closure</div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── PAGE: DOCTOR LIVE VIEW ──────────────────────────── -->
+    <div class="page" id="page-doctor">
+      <div class="doctor-layout">
+
+        <!-- MAIN VIDEO -->
+        <div class="video-main">
+          <svg class="surgical-svg" viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <!-- Dark OR environment -->
+            <rect width="900" height="520" fill="#030608"/>
+            <!-- Ceiling / ambient -->
+            <ellipse cx="450" cy="0" rx="400" ry="120" fill="rgba(20,40,20,0.18)"/>
+            <!-- Surgical drape — green -->
+            <rect x="80" y="200" width="740" height="290" rx="6" fill="#0a1a0a"/>
+            <rect x="80" y="200" width="740" height="10" fill="#0d2010" rx="3"/>
+            <!-- Overhead light cone -->
+            <ellipse cx="450" cy="340" rx="180" ry="110" fill="rgba(200,230,160,0.09)"/>
+            <ellipse cx="450" cy="340" rx="100" ry="70" fill="rgba(210,240,170,0.06)"/>
+            <!-- Tissue / abdomen -->
+            <ellipse cx="450" cy="360" rx="150" ry="80" fill="#1e1008"/>
+            <ellipse cx="450" cy="355" rx="135" ry="70" fill="#281408"/>
+            <ellipse cx="450" cy="350" rx="118" ry="60" fill="#2e1a0a"/>
+            <!-- Trocar ports (laparoscopic) -->
+            <circle cx="350" cy="340" r="10" fill="#1a1a2a" stroke="#3a3a5a" stroke-width="1"/>
+            <circle cx="350" cy="340" r="5" fill="#0a0a1a"/>
+            <circle cx="450" cy="300" r="12" fill="#1a1a2a" stroke="#3a3a5a" stroke-width="1"/>
+            <circle cx="450" cy="300" r="6" fill="#0a0a1a"/>
+            <circle cx="560" cy="340" r="10" fill="#1a1a2a" stroke="#3a3a5a" stroke-width="1"/>
+            <circle cx="560" cy="340" r="5" fill="#0a0a1a"/>
+            <!-- Laparoscope instrument -->
+            <line x1="720" y1="160" x2="449" y2="301" stroke="#8a8a9a" stroke-width="5" stroke-linecap="round"/>
+            <circle cx="449" cy="301" r="7" fill="#5a5a7a" stroke="#8a8a9a" stroke-width="1"/>
+            <!-- Grasper instrument -->
+            <line x1="200" y1="170" x2="351" y2="341" stroke="#7a7a8a" stroke-width="4" stroke-linecap="round"/>
+            <line x1="351" y1="340" x2="360" y2="348" stroke="#6a6a8a" stroke-width="2" stroke-linecap="round"/>
+            <line x1="351" y1="340" x2="342" y2="348" stroke="#6a6a8a" stroke-width="2" stroke-linecap="round"/>
+            <!-- Suction instrument -->
+            <line x1="730" y1="420" x2="561" y2="341" stroke="#6a7a8a" stroke-width="3" stroke-linecap="round"/>
+            <!-- Tissue clamp -->
+            <ellipse cx="390" cy="345" rx="18" ry="8" fill="none" stroke="#9a6a4a" stroke-width="1.5" stroke-dasharray="3,2"/>
+            <!-- Blood / fluid trace (subtle) -->
+            <path d="M430 352 Q450 360 470 352" stroke="#6b0010" stroke-width="1.5" fill="none" opacity="0.5"/>
+            <circle cx="445" cy="358" r="4" fill="#7a0012" opacity="0.4"/>
+            <!-- Depth shadow -->
+            <ellipse cx="450" cy="380" rx="100" ry="25" fill="rgba(0,0,0,0.55)"/>
+            <!-- OR equipment silhouettes in background -->
+            <rect x="820" y="120" width="60" height="280" rx="4" fill="rgba(20,30,40,0.6)"/>
+            <rect x="830" y="130" width="40" height="25" rx="2" fill="rgba(30,50,70,0.8)"/>
+            <rect x="40" y="140" width="50" height="240" rx="4" fill="rgba(20,30,40,0.5)"/>
+            <!-- Waveform on anesthesia screen (bg detail) -->
+            <path d="M42 200 Q50 185 55 200 Q58 210 62 195 Q65 180 68 195 Q72 215 76 200 Q80 185 85 200" fill="none" stroke="rgba(0,255,120,0.25)" stroke-width="1.5"/>
+            <!-- Staff silhouettes -->
+            <ellipse cx="740" cy="280" rx="25" ry="45" fill="rgba(15,25,40,0.7)"/>
+            <circle cx="740" cy="225" r="18" fill="rgba(15,25,40,0.65)"/>
+            <ellipse cx="160" cy="300" rx="22" ry="40" fill="rgba(15,25,40,0.6)"/>
+            <circle cx="160" cy="252" r="16" fill="rgba(15,25,40,0.55)"/>
+          </svg>
+
+          <div class="video-overlay-grad"></div>
+
+          <!-- HUD elements -->
+          <div class="vid-hud">
+            <div class="cbracket cbtl"></div><div class="cbracket cbtr"></div>
+            <div class="cbracket cbbl"></div><div class="cbracket cbbr"></div>
+            <div class="vid-rec"><div class="rec-dot"></div>REC <span id="vid-time">02:14:38</span></div>
+            <div class="vid-info-l">CAM-01 · LAPAROSCOPIC<br>OR-3 · 4K HDR<br>AI VISION: ON</div>
+            <div class="vid-info-r">ZOOM 2.4x<br>EXP 1/250s<br>ISO 3200</div>
+            <div class="scan-line"></div>
+
+            <!-- AI detection boxes -->
+            <div class="det-box" style="left:36%;top:50%;width:22%;height:24%">
+              <div class="det-bar" style="width:96%"></div>
+              <div class="det-lbl">Operative field · 96%</div>
+            </div>
+            <div class="det-box" style="left:71%;top:28%;width:10%;height:35%;border-color:rgba(255,176,32,.65)">
+              <div class="det-bar" style="width:89%;background:var(--warn)"></div>
+              <div class="det-lbl" style="color:var(--warn)">Laparoscope · 89%</div>
+            </div>
+            <div class="det-box" style="left:16%;top:28%;width:12%;height:34%;border-color:rgba(255,176,32,.65)">
+              <div class="det-bar" style="width:83%;background:var(--warn)"></div>
+              <div class="det-lbl" style="color:var(--warn)">Grasper · 83%</div>
+            </div>
+            <div class="det-box" style="left:65%;top:66%;width:12%;height:22%;border-color:rgba(56,189,248,.5)">
+              <div class="det-bar" style="width:75%;background:var(--info)"></div>
+              <div class="det-lbl" style="color:var(--info)">Suction · 75%</div>
+            </div>
+            <!-- Anatomy label -->
+            <div style="position:absolute;left:40%;top:44%;font-family:var(--mono);font-size:9px;color:rgba(0,229,176,.7);background:rgba(0,0,0,.65);padding:2px 6px;border-radius:3px;border:1px solid rgba(0,229,176,.2)">Gallbladder</div>
+
+            <!-- Vitals overlay -->
+            <div class="vitals-overlay">
+              <div class="vov" style="--vc2:var(--ok)"><div class="vov-lbl">HR</div><div class="vov-val" id="doc-hr">72 <span style="font-size:11px">bpm</span></div></div>
+              <div class="vov" style="--vc2:var(--accent)"><div class="vov-lbl">SpO₂</div><div class="vov-val" id="doc-spo2">98<span style="font-size:11px">%</span></div></div>
+              <div class="vov" style="--vc2:var(--accent2)"><div class="vov-lbl">BP</div><div class="vov-val" id="doc-bp" style="font-size:14px">118/76</div></div>
+              <div class="vov" style="--vc2:var(--warn)"><div class="vov-lbl">Temp</div><div class="vov-val" id="doc-temp" style="font-size:15px">36.7°</div></div>
+            </div>
+
+            <div class="vid-bottom">AI OBJECT TRACKING ACTIVE · 4 instruments detected · Laparoscopic View</div>
+          </div>
+        </div>
+
+        <!-- Doctor right panel -->
+        <div class="doc-right">
+          <div class="card">
+            <div class="card-hdr">
+              <span class="card-title">Patient Status</span>
+              <span class="badge b-ok" id="doc-status-badge">STABLE</span>
+            </div>
+            <div style="padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:9px 11px;">
+                <div style="font-size:9px;color:var(--text3);margin-bottom:3px">PATIENT</div>
+                <div style="font-size:12px;font-weight:600">John D., 58y</div>
+                <div style="font-size:10px;color:var(--text2)">Blood: O+</div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:9px 11px;">
+                <div style="font-size:9px;color:var(--text3);margin-bottom:3px">PROCEDURE</div>
+                <div style="font-size:12px;font-weight:600">Lap. Chole.</div>
+                <div style="font-size:10px;color:var(--text2)">General anesthesia</div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:9px 11px;">
+                <div style="font-size:9px;color:var(--text3);margin-bottom:3px">SURGEON</div>
+                <div style="font-size:12px;font-weight:600">Dr. Al-Rashid</div>
+                <div style="font-size:10px;color:var(--text2)">Lead surgeon</div>
+              </div>
+              <div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:9px;padding:9px 11px;">
+                <div style="font-size:9px;color:var(--text3);margin-bottom:3px">OR NURSE</div>
+                <div style="font-size:12px;font-weight:600">N. Hassan</div>
+                <div style="font-size:10px;color:var(--text2)">Scrub nurse</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Live Alert Feed</span><span class="badge b-ok" id="doc-alert-badge">Monitoring</span></div>
+            <div class="alert-ticker" style="border:none;border-radius:0;background:transparent;padding:8px 0;" id="doc-ticker">
+              <div class="ticker-row"><div class="ticker-dot" style="background:var(--ok)"></div><div><div class="ticker-txt">All vitals within normal range</div><div class="ticker-time">02:05:00</div></div></div>
+              <div class="ticker-row"><div class="ticker-dot" style="background:var(--ok)"></div><div><div class="ticker-txt">AI monitoring active — 3 instruments tracked</div><div class="ticker-time">02:00:12</div></div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">AI Video Analysis</span></div>
+            <div style="padding:12px;display:flex;flex-direction:column;gap:6px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--text2)">Operative field clarity</span><span style="color:var(--ok);font-family:var(--mono)">96.2%</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--text2)">Instrument count</span><span style="color:var(--accent2);font-family:var(--mono)">4 detected</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--text2)">Bleeding risk AI score</span><span style="color:var(--ok);font-family:var(--mono)" id="bleed-score">Low (0.12)</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;border-bottom:1px solid var(--border);">
+                <span style="color:var(--text2)">Tissue tension</span><span style="color:var(--accent);font-family:var(--mono)">Normal</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:11px;padding:5px 0;">
+                <span style="color:var(--text2)">Anatomical landmark</span><span style="color:var(--accent2);font-family:var(--mono)">Gallbladder</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Surgical Phase</span></div>
+            <div class="phases-row">
+              <div class="ph"><div class="ph-n">1</div><div class="ph-t">Prep</div></div>
+              <div class="ph active"><div class="ph-n">2</div><div class="ph-t">Incision</div></div>
+              <div class="ph"><div class="ph-n">3</div><div class="ph-t">Procedure</div></div>
+              <div class="ph"><div class="ph-n">4</div><div class="ph-t">Closure</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom waveform strip -->
+        <div class="card" style="grid-column:1/3;">
+          <div class="card-hdr"><span class="card-title">Remote Vital Waveforms</span><span class="badge b-ok">Live Sync</span></div>
+          <div class="wf-inner">
+            <div class="wf-cell"><div class="wf-lbl">ECG</div><canvas class="wf" id="doc-wf-ecg"></canvas></div>
+            <div class="wf-cell"><div class="wf-lbl">SpO₂ Pleth</div><canvas class="wf" id="doc-wf-spo2"></canvas></div>
+            <div class="wf-cell"><div class="wf-lbl">NIBP</div><canvas class="wf" id="doc-wf-nibp"></canvas></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ─── PAGE: PHARMACIST ─────────────────────────────────── -->
+    <div class="page" id="page-pharmacy">
+      <div class="pharm-layout">
+        <div class="pharm-main">
+
+          <div class="pharm-hero">
+            <div class="ph-text">
+              <h2>Pharmacy <span>Dispatch Hub</span></h2>
+              <p>Real-time OR drug orders · Inventory management · Automated AI stock alerts</p>
+            </div>
+            <div class="ph-stats">
+              <div class="ph-stat"><div class="ph-stat-v" id="ps-total">0</div><div class="ph-stat-l">Orders Received</div></div>
+              <div class="ph-stat"><div class="ph-stat-v" id="ps-pending">0</div><div class="ph-stat-l">Pending</div></div>
+              <div class="ph-stat"><div class="ph-stat-v" id="ps-dispatched">0</div><div class="ph-stat-l">Dispatched</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Incoming Orders — OR-3</span><span class="badge b-info" id="pharm-order-badge">Waiting</span></div>
+            <div id="incoming-orders-list">
+              <div style="padding:28px;text-align:center;color:var(--text3);font-size:12px;" id="no-orders-msg">
+                No incoming orders yet. Orders from OR will appear here automatically.
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Inventory Status</span></div>
+            <div id="inventory-list">
+              <div class="inv-item"><span class="inv-name">Propofol 200mg/20mL</span><div class="inv-bar-w"><div class="inv-bar" id="inv-propofol" style="width:72%;background:var(--ok)"></div></div><span class="inv-pct" style="color:var(--ok)">72%</span><span class="inv-lbl inv-ok">OK</span></div>
+              <div class="inv-item"><span class="inv-name">Fentanyl 100mcg/2mL</span><div class="inv-bar-w"><div class="inv-bar" id="inv-fentanyl" style="width:58%;background:var(--ok)"></div></div><span class="inv-pct" style="color:var(--ok)">58%</span><span class="inv-lbl inv-ok">OK</span></div>
+              <div class="inv-item"><span class="inv-name">Rocuronium 50mg/5mL</span><div class="inv-bar-w"><div class="inv-bar" id="inv-rocuronium" style="width:31%;background:var(--warn)"></div></div><span class="inv-pct" style="color:var(--warn)">31%</span><span class="inv-lbl inv-low">LOW</span></div>
+              <div class="inv-item"><span class="inv-name">Epinephrine 1mg/mL</span><div class="inv-bar-w"><div class="inv-bar" id="inv-epinephrine" style="width:85%;background:var(--ok)"></div></div><span class="inv-pct" style="color:var(--ok)">85%</span><span class="inv-lbl inv-ok">OK</span></div>
+              <div class="inv-item"><span class="inv-name">Morphine 10mg/mL</span><div class="inv-bar-w"><div class="inv-bar" style="width:45%;background:var(--ok)"></div></div><span class="inv-pct" style="color:var(--ok)">45%</span><span class="inv-lbl inv-ok">OK</span></div>
+              <div class="inv-item"><span class="inv-name">Midazolam 5mg/mL</span><div class="inv-bar-w"><div class="inv-bar" style="width:68%;background:var(--ok)"></div></div><span class="inv-pct" style="color:var(--ok)">68%</span><span class="inv-lbl inv-ok">OK</span></div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- PHARM RIGHT COLUMN -->
+        <div class="pharm-right">
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">Activity Log</span></div>
+            <div class="pharm-log" id="pharm-log">
+              <div class="log-row"><div class="log-time">02:00:00</div><div class="log-txt">Pharmacy system <strong>online</strong></div></div>
+              <div class="log-row"><div class="log-time">02:00:05</div><div class="log-txt">Connected to <strong>OR-3</strong></div></div>
+            </div>
+          </div>
+
+          <div class="contact-card">
+            <div class="contact-title">OR-3 Team</div>
+            <div class="ct-row"><div class="ct-icon">🏥</div><div><div class="ct-lbl">Anesthesiologist</div><div class="ct-val">Dr. K. Yilmaz</div></div></div>
+            <div class="ct-row"><div class="ct-icon">🔪</div><div><div class="ct-lbl">Lead Surgeon</div><div class="ct-val">Dr. Al-Rashid</div></div></div>
+            <div class="ct-row"><div class="ct-icon">📞</div><div><div class="ct-lbl">OR Direct Line</div><div class="ct-val">Ext. 3310</div></div></div>
+            <div class="ct-row"><div class="ct-icon">📍</div><div><div class="ct-lbl">Location</div><div class="ct-val">Floor 3, OR Wing</div></div></div>
+            <div class="ct-row"><div class="ct-icon">⏱</div><div><div class="ct-lbl">Op Duration</div><div class="ct-val" id="op-dur">2h 14m</div></div></div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><span class="card-title">AI Stock Forecast</span></div>
+            <div style="padding:12px;display:flex;flex-direction:column;gap:7px;">
+              <div style="background:rgba(255,61,87,.07);border:1px solid rgba(255,61,87,.18);border-radius:8px;padding:9px 11px;font-size:11px;">
+                <span style="color:var(--danger);font-weight:600">⚠ Rocuronium</span><br>
+                <span style="color:var(--text2)">Depletes in ~<strong style="color:var(--text)">45 min</strong>. Order now.</span>
+              </div>
+              <div style="background:rgba(255,176,32,.06);border:1px solid rgba(255,176,32,.18);border-radius:8px;padding:9px 11px;font-size:11px;">
+                <span style="color:var(--warn);font-weight:600">ℹ Fentanyl</span><br>
+                <span style="color:var(--text2)">Low in ~<strong style="color:var(--text)">2.5 hrs</strong>. Plan ahead.</span>
+              </div>
+              <div style="background:rgba(0,212,138,.04);border:1px solid rgba(0,212,138,.12);border-radius:8px;padding:9px 11px;font-size:11px;">
+                <span style="color:var(--ok);font-weight:600">✓ Propofol, Epinephrine</span><br>
+                <span style="color:var(--text2)">Sufficient for procedure duration.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pages -->
+</div><!-- /app -->
+
+<!-- ORDER MODAL -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <div class="modal-title">📦 Send Drug Order</div>
+    <div class="modal-sub">Order will be sent directly to Pharmacy — Dr. Sara Malik</div>
+    <div class="mf"><label>Drug</label><input id="m-drug" readonly></div>
+    <div class="mf-row">
+      <div class="mf"><label>Quantity</label><input id="m-qty" type="number" min="1" max="50" value="5"></div>
+      <div class="mf"><label>Priority</label>
+        <select id="m-priority">
+          <option value="urgent">🔴 Urgent</option>
+          <option value="high">🟡 High</option>
+          <option value="standard" selected>🟢 Standard</option>
+        </select>
+      </div>
+    </div>
+    <div class="mf"><label>Requested by</label><input id="m-req" value="Dr. Yilmaz — Anesthesiologist, OR-3"></div>
+    <div class="mf"><label>Notes</label><textarea id="m-notes" placeholder="Additional instructions..."></textarea></div>
+    <div class="m-actions">
+      <button class="m-cancel" onclick="closeModal()">Cancel</button>
+      <button class="m-send" onclick="sendOrder()">✓ Send to Pharmacy</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title"></div>
+  <div id="toast-sub" style="font-size:11px;opacity:.85;margin-top:2px;"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+//  STATE & SHARED DATA
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  role: null,
+  muted: false,
+  opSec: 8078,
+  eventCount: 3,
+  orderCount: 0,
+  pendingCount: 0,
+  dispatchCount: 0,
+  orderedDrugs: new Set(),
+  pharmOrders: [],
+  hr: 72, hrDir: 1,
+  anomaly: false,
+  ecgPhase: 0,
+  wPhase: 0,
+  seqIdx: 0,
+  lastEvent: 25,
+  currentOrderKey: null,
+  currentOrderName: null
+};
+
+// ═══════════════════════════════════════════════════════════════
+//  AUDIO ENGINE (Web Audio API — no external files)
+// ═══════════════════════════════════════════════════════════════
+let audioCtx = null;
+
+function getAudio() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+
+function playBeep(freq, dur, type='sine', vol=0.4) {
+  if (state.muted) return;
+  try {
+    const ctx = getAudio();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(vol, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur);
+  } catch(e){}
+}
+
+function playAlert(type) {
+  if (state.muted) return;
+  if (type === 'critical') {
+    // Urgent alarm — fast triple beep
+    [0, 0.28, 0.56].forEach(t => {
+      setTimeout(() => playBeep(880, 0.22, 'square', 0.5), t * 1000);
+    });
+  } else if (type === 'warning') {
+    // Double warning tone
+    playBeep(660, 0.18, 'sine', 0.4);
+    setTimeout(() => playBeep(550, 0.22, 'sine', 0.35), 250);
+  } else if (type === 'order') {
+    // Pharmacy new order chime
+    [523, 659, 784].forEach((f, i) => {
+      setTimeout(() => playBeep(f, 0.18, 'sine', 0.35), i * 160);
+    });
+  } else if (type === 'confirm') {
+    // Confirmation positive
+    [523, 659].forEach((f, i) => setTimeout(() => playBeep(f, 0.14, 'sine', 0.3), i * 120));
+  } else if (type === 'heartbeat') {
+    playBeep(80, 0.05, 'sine', 0.2);
+    setTimeout(() => playBeep(70, 0.04, 'sine', 0.15), 80);
+  }
+}
+
+// Heartbeat click every ~second (normal)
+let hbInterval = setInterval(() => {
+  if (!state.anomaly) playAlert('heartbeat');
+}, 820);
+
+function toggleMute() {
+  state.muted = !state.muted;
+  document.getElementById('mute-btn').textContent = state.muted ? '🔇 Muted' : '🔊 Sound ON';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LANDING / APP ENTRY
+// ═══════════════════════════════════════════════════════════════
+function enterApp(role) {
+  state.role = role;
+  // Resume audio context on user gesture
+  if (audioCtx) audioCtx.resume();
+  else audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  playAlert('confirm');
+
+  document.getElementById('landing').style.display = 'none';
+  const app = document.getElementById('app');
+  app.style.display = 'flex';
+
+  const chipEl = document.getElementById('role-chip');
+  if (role === 'or') { chipEl.textContent = '🖥 OR Monitor'; chipEl.className = 'role-chip rc-1'; }
+  else if (role === 'doctor') { chipEl.textContent = '👨‍⚕️ Doctor'; chipEl.className = 'role-chip rc-2'; }
+  else { chipEl.textContent = '💊 Pharmacist'; chipEl.className = 'role-chip rc-3'; }
+
+  switchView(role);
+  initECG();
+  startLoop();
+}
+
+function switchView(v) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + v).classList.add('active');
+  document.getElementById('tab-' + v).classList.add('active');
+
+  // Hide new order indicator when pharmacy is viewed
+  if (v === 'pharmacy') document.getElementById('new-order-indicator').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CLOCK
+// ═══════════════════════════════════════════════════════════════
+setInterval(() => {
+  state.opSec++;
+  const h = String(Math.floor(state.opSec/3600)).padStart(2,'0');
+  const m = String(Math.floor((state.opSec%3600)/60)).padStart(2,'0');
+  const s = String(state.opSec%60).padStart(2,'0');
+  const t = `${h}:${m}:${s}`;
+  const clk = document.getElementById('op-clock');
+  if (clk) clk.textContent = t;
+  const vt = document.getElementById('vid-time');
+  if (vt) vt.textContent = t;
+  // op duration
+  const od = document.getElementById('op-dur');
+  if (od) od.textContent = `${h}h ${m}m`;
+}, 1000);
+
+// ═══════════════════════════════════════════════════════════════
+//  ECG CANVAS
+// ═══════════════════════════════════════════════════════════════
+let ecgCV, ecgCX, ecgData = [];
+
+function initECG() {
+  ecgCV = document.getElementById('ecg-cv');
+  if (!ecgCV) return;
+  ecgCX = ecgCV.getContext('2d');
+  resizeECG();
+}
+
+function resizeECG() {
+  if (!ecgCV) return;
+  const dpr = window.devicePixelRatio || 1;
+  ecgCV.width = ecgCV.offsetWidth * dpr;
+  ecgCV.height = ecgCV.offsetHeight * dpr;
+  ecgCX.scale(dpr, dpr);
+}
+
+function ecgSample(t) {
+  const c = t % 1;
+  if (state.anomaly && c > 0.5 && c < 0.65) return Math.sin((c-0.5)*55)*0.85;
+  if (c < 0.10) return Math.sin(c*15)*0.08;
+  if (c >= 0.10 && c < 0.15) return (c-0.10)*-4;
+  if (c >= 0.15 && c < 0.18) return -0.2+(c-0.15)*40;
+  if (c >= 0.18 && c < 0.22) return 1.0-(c-0.18)*60;
+  if (c >= 0.22 && c < 0.28) return -0.35+(c-0.22)*6;
+  if (c >= 0.28 && c < 0.35) return Math.sin((c-0.28)*25)*0.18;
+  if (c >= 0.35 && c < 0.5) return Math.sin((c-0.35)*10)*0.06;
+  return 0;
+}
+
+function drawECG() {
+  if (!ecgCV || !ecgCX) return;
+  const W = ecgCV.offsetWidth, H = ecgCV.offsetHeight;
+  ecgCX.clearRect(0,0,W,H);
+  // Grid
+  ecgCX.strokeStyle = 'rgba(45,125,255,0.07)'; ecgCX.lineWidth = 0.5;
+  for (let x=0;x<W;x+=20){ecgCX.beginPath();ecgCX.moveTo(x,0);ecgCX.lineTo(x,H);ecgCX.stroke();}
+  for (let y=0;y<H;y+=14){ecgCX.beginPath();ecgCX.moveTo(0,y);ecgCX.lineTo(W,y);ecgCX.stroke();}
+  state.ecgPhase += 0.0055;
+  ecgData.push(ecgSample(state.ecgPhase));
+  if (ecgData.length > W) ecgData.shift();
+  const col = state.anomaly ? '#ff3d57' : '#00d48a';
+  ecgCX.shadowColor = col; ecgCX.shadowBlur = 7;
+  ecgCX.strokeStyle = col; ecgCX.lineWidth = 1.5;
+  ecgCX.beginPath();
+  ecgData.forEach((v,i) => {
+    const x=i, y=H/2-v*(H/2.6);
+    i===0?ecgCX.moveTo(x,y):ecgCX.lineTo(x,y);
+  });
+  ecgCX.stroke(); ecgCX.shadowBlur = 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  WAVEFORMS
+// ═══════════════════════════════════════════════════════════════
+function drawWave(id, color, fn) {
+  const cv = document.getElementById(id);
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const dpr = window.devicePixelRatio||1;
+  cv.width = cv.offsetWidth*dpr; cv.height = cv.offsetHeight*dpr;
+  ctx.scale(dpr,dpr);
+  const W=cv.offsetWidth, H=cv.offsetHeight;
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle=color; ctx.lineWidth=1.5;
+  ctx.shadowColor=color; ctx.shadowBlur=4;
+  ctx.beginPath();
+  for(let x=0;x<W;x++){const t=(x/W)*5+state.wPhase;const y=H/2-fn(t)*(H/2.5);x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.stroke();
+}
+
+function updateWaves() {
+  state.wPhase += 0.04;
+  drawWave('wf-resp','#2d7dff',t=>Math.sin(t*.8)*.7+Math.sin(t*1.6)*.15);
+  drawWave('wf-nibp','#00e5b0',t=>Math.sin(t*1.1)*.5+Math.sin(t*3)*.2);
+  drawWave('wf-spo2','#7c5cfc',t=>{const c=t%(Math.PI*2);if(c<1)return Math.sin(c*Math.PI)*.9;if(c<1.5)return-Math.sin((c-1)*Math.PI*2)*.2;return 0;});
+  drawWave('doc-wf-ecg',state.anomaly?'#ff3d57':'#00d48a',t=>ecgSample(t*0.18));
+  drawWave('doc-wf-spo2','#7c5cfc',t=>{const c=(t*.6)%(Math.PI*2);if(c<1)return Math.sin(c*Math.PI)*.85;if(c<1.5)return-Math.sin((c-1)*Math.PI*2)*.18;return 0;});
+  drawWave('doc-wf-nibp','#00e5b0',t=>Math.sin(t*.9)*.5+Math.sin(t*2.8)*.18);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════════════
+let toastTimer = null;
+function showToast(title, sub, type='ok') {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-title').textContent = title;
+  document.getElementById('toast-sub').textContent = sub;
+  el.className = `toast toast-${type} show`;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 5000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ALERT HELPERS
+// ═══════════════════════════════════════════════════════════════
+function addAlert(title, sub, type) {
+  state.eventCount++;
+  const badge = document.getElementById('alert-badge-or');
+  if (badge) badge.textContent = state.eventCount + ' Events';
+
+  // OR alert list
+  const list = document.getElementById('alert-list-or');
+  if (list) {
+    const t = document.getElementById('op-clock').textContent;
+    const dc = type==='crit'?'adot-crit':type==='warn'?'adot-warn':'adot-ok';
+    const item = document.createElement('div');
+    item.className = 'alert-row';
+    item.innerHTML = `<div class="adot ${dc}"></div><div><div class="atitle">${title}</div><div class="asub">${sub} · ${t}</div></div>`;
+    list.prepend(item);
+  }
+
+  // Doctor ticker
+  const ticker = document.getElementById('doc-ticker');
+  if (ticker) {
+    const t = document.getElementById('op-clock').textContent;
+    const dotC = type==='crit'?'var(--danger)':type==='warn'?'var(--warn)':'var(--ok)';
+    const item = document.createElement('div');
+    item.className = 'ticker-row';
+    item.style.animation = 'fadein .3s ease';
+    item.innerHTML = `<div class="ticker-dot" style="background:${dotC}"></div><div><div class="ticker-txt">${title}</div><div class="ticker-time">${t}</div></div>`;
+    ticker.prepend(item);
+    if (ticker.children.length > 6) ticker.lastChild.remove();
+  }
+
+  // Pharmacy log
+  addPharmLog(title);
+}
+
+function addPharmLog(txt) {
+  const log = document.getElementById('pharm-log');
+  if (!log) return;
+  const t = document.getElementById('op-clock').textContent;
+  const row = document.createElement('div');
+  row.className = 'log-row';
+  row.innerHTML = `<div class="log-time">${t}</div><div class="log-txt">${txt}</div>`;
+  log.prepend(row);
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  CRITICAL EVENT SEQUENCE
+// ═══════════════════════════════════════════════════════════════
+const critSeq = [
+  {
+    hr:48, spo2:91, type:'crit',
+    aiText:'CRITICAL: Bradycardia. HR below 50bpm. Immediate intervention required.',
+    aiSug:'Administer Atropine 0.5mg IV stat. Check electrodes. Reduce anesthesia depth.',
+    alertTitle:'⚠ CRITICAL — Bradycardia', alertSub:'HR 48bpm · Immediate action',
+    toast:'⚠ CRITICAL: Bradycardia!', toastSub:'HR dropped to 48bpm — act immediately',
+    vBadge:'CRITICAL', docBadge:'CRITICAL',
+    docAlert:'CRITICAL: Bradycardia — HR 48bpm',
+    sound:'critical'
+  },
+  {
+    hr:58, spo2:94, type:'warn',
+    aiText:'SpO₂ 94% — trending low. Check airway patency.',
+    aiSug:'Increase FiO₂. Check airway. Consider jaw-thrust.',
+    alertTitle:'⚠ Low SpO₂ Warning', alertSub:'Saturation 94%',
+    toast:'Low SpO₂ — 94%', toastSub:'Monitor closely',
+    vBadge:'WARNING', docBadge:'MONITOR',
+    docAlert:'SpO₂ dropped to 94% — monitoring',
+    sound:'warning'
+  },
+  {
+    hr:72, spo2:98, type:'ok',
+    aiText:'Vitals stabilizing. All parameters trending to normal range.',
+    aiSug:'Continue monitoring. Document event. Alert resolved.',
+    alertTitle:'✓ Resolved — Vitals Normalized', alertSub:'All parameters back in range',
+    toast:'✓ Vitals Normal', toastSub:'Alert resolved',
+    vBadge:'ALL NORMAL', docBadge:'STABLE',
+    docAlert:'Vitals normalized — monitoring resumed',
+    sound:'confirm'
+  }
+];
+
+function triggerCritical(ev) {
+  state.anomaly = ev.type === 'crit';
+
+  // Update vitals displays
+  setVital('v-hr', ev.hr, ev.type==='crit'?'var(--danger)':ev.type==='warn'?'var(--warn)':'var(--ok)');
+  setVital('v-spo2', ev.spo2, ev.type==='crit'?'var(--danger)':ev.type==='warn'?'var(--warn)':'var(--accent)');
+  setVital('doc-hr', ev.hr + ' bpm', ev.type==='crit'?'var(--danger)':ev.type==='warn'?'var(--warn)':'var(--ok)');
+  setVital('doc-spo2', ev.spo2 + '%', ev.type==='crit'?'var(--danger)':ev.type==='warn'?'var(--warn)':'var(--accent)');
+
+  // Badges
+  const vb = document.getElementById('vitals-badge');
+  if (vb) { vb.textContent = ev.vBadge; vb.className = 'badge ' + (ev.type==='crit'?'b-crit':ev.type==='warn'?'b-warn':'b-ok'); }
+  const ecgb = document.getElementById('ecg-badge');
+  if (ecgb) ecgb.textContent = ev.type==='crit'?'BRADYCARDIA':ev.type==='warn'?'ABNORMAL':'NSR';
+  const ddb = document.getElementById('doc-status-badge');
+  if (ddb) { ddb.textContent = ev.docBadge; ddb.className = 'badge ' + (ev.type==='crit'?'b-crit':ev.type==='warn'?'b-warn':'b-ok'); }
+  const dab = document.getElementById('doc-alert-badge');
+  if (dab) { dab.textContent = ev.type==='crit'?'CRITICAL':ev.type==='warn'?'WARNING':'Monitoring'; dab.className = 'badge ' + (ev.type==='crit'?'b-crit':ev.type==='warn'?'b-warn':'b-ok'); }
+
+  // AI box
+  const at = document.getElementById('ai-text-or');
+  if (at) at.textContent = ev.aiText;
+  const as = document.getElementById('ai-sug-or');
+  if (as) as.textContent = ev.aiSug;
+
+  addAlert(ev.alertTitle, ev.alertSub, ev.type);
+  showToast(ev.toast, ev.toastSub, ev.type==='crit'?'crit':ev.type==='warn'?'warn':'ok');
+  playAlert(ev.sound);
+}
+
+function setVital(id, val, color) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = val; el.style.color = color; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  PHARMACY ORDER SYSTEM
+// ═══════════════════════════════════════════════════════════════
+function openOrder(name, key, priority) {
+  if (state.orderedDrugs.has(key)) return;
+  state.currentOrderKey = key;
+  state.currentOrderName = name;
+  document.getElementById('m-drug').value = name;
+  document.getElementById('m-priority').value = priority;
+  document.getElementById('m-qty').value = priority==='urgent' ? 10 : 5;
+  document.getElementById('m-notes').value = priority==='urgent' ? 'URGENT: Stock critically low during active surgical procedure.' : '';
+  document.getElementById('modal-bg').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modal-bg').classList.remove('show');
+}
+
+function sendOrder() {
+  const key = state.currentOrderKey;
+  const name = state.currentOrderName || document.getElementById('m-drug').value;
+  const qty = document.getElementById('m-qty').value;
+  const priority = document.getElementById('m-priority').value;
+  const req = document.getElementById('m-req').value;
+  const notes = document.getElementById('m-notes').value;
+  if (!key) return;
+  closeModal();
+
+  state.orderedDrugs.add(key);
+  state.orderCount++;
+  state.pendingCount++;
+
+  // Update sidebar btn
+  const btn = document.getElementById('dsb-btn-' + key);
+  if (btn) { btn.textContent = '✓ Sent'; btn.className = 'dorder-btn done'; }
+
+  // Deliver to pharmacy panel
+  deliverToPharmacy(name, key, qty, priority, req, notes);
+
+  addAlert(`📦 Order sent: ${name}`, `Qty ${qty} · ${priority}`, 'ok');
+  showToast('📦 Order sent to pharmacy', `${name} × ${qty}`, 'ok');
+  playAlert('order');
+
+  // Update OR stats
+  updatePharmStats();
+}
+
+function deliverToPharmacy(name, key, qty, priority, req, notes) {
+  // Show indicator in topbar
+  const ind = document.getElementById('new-order-indicator');
+  ind.style.display = 'flex';
+
+  // Hide empty msg
+  const em = document.getElementById('no-orders-msg');
+  if (em) em.style.display = 'none';
+
+  // Update badge
+  const pb = document.getElementById('pharm-order-badge');
+  if (pb) { pb.textContent = state.orderCount + ' incoming'; pb.className = 'badge b-warn'; }
+
+  // Update stats
+  document.getElementById('ps-total').textContent = state.orderCount;
+  document.getElementById('ps-pending').textContent = state.pendingCount;
+
+  const t = document.getElementById('op-clock').textContent;
+  const icons = {rocuronium:'💉',propofol:'🟦',fentanyl:'🔵',epinephrine:'🔴'};
+  const prioColor = priority==='urgent'?'urgent':priority==='high'?'high':'';
+
+  const card = document.createElement('div');
+  card.className = 'order-card ' + prioColor;
+  card.id = 'oc-' + key;
+  card.innerHTML = `
+    <div class="oc-hdr">
+      <div>
+        <div class="oc-drug">${icons[key]||'💊'} ${name}</div>
+        <div style="font-size:10px;color:var(--text3);font-family:var(--mono)">${t} · OR-3</div>
+      </div>
+      <span class="badge ${priority==='urgent'?'b-crit':priority==='high'?'b-warn':'b-info'}">${priority.toUpperCase()}</span>
+    </div>
+    <div class="oc-body">
+      <div class="oc-meta">
+        <strong>Drug:</strong> ${name}<br>
+        <strong>Qty:</strong> ${qty} units<br>
+        <strong>From:</strong> ${req}
+      </div>
+      <div class="oc-meta">
+        <strong>Priority:</strong> ${priority}<br>
+        <strong>Notes:</strong> ${notes||'None'}<br>
+        <strong>Status:</strong> <span id="oc-status-${key}" style="color:var(--warn)">Pending</span>
+      </div>
+      <div class="oc-actions">
+        <button class="ac-btn ac-confirm" onclick="confirmOrder('${key}','${name}','${qty}')">✓ Confirm</button>
+        <button class="ac-btn ac-dispatch" onclick="dispatchOrder('${key}','${name}')">🚚 Dispatch</button>
+      </div>
+    </div>`;
+
+  const list = document.getElementById('incoming-orders-list');
+  list.prepend(card);
+
+  // Pharmacy sound alert
+  if (state.role === 'pharmacy') {
+    playAlert('order');
+  }
+  addPharmLog(`<strong>New order received:</strong> ${name} × ${qty} [${priority}]`);
+}
+
+function confirmOrder(key, name, qty) {
+  const s = document.getElementById('oc-status-' + key);
+  if (s) { s.textContent = 'Confirmed'; s.style.color = 'var(--accent)'; }
+  const card = document.getElementById('oc-' + key);
+  if (card) card.querySelector('.ac-confirm').disabled = true;
+  playAlert('confirm');
+  addPharmLog(`<strong>Confirmed:</strong> ${name} × ${qty}`);
+  showToast('✓ Order Confirmed', `${name} dispatching soon`, 'ok');
+}
+
+function dispatchOrder(key, name) {
+  state.pendingCount = Math.max(0, state.pendingCount-1);
+  state.dispatchCount++;
+  document.getElementById('ps-pending').textContent = state.pendingCount;
+  document.getElementById('ps-dispatched').textContent = state.dispatchCount;
+
+  const s = document.getElementById('oc-status-' + key);
+  if (s) { s.textContent = 'Dispatched 🚚'; s.style.color = 'var(--ok)'; }
+  const card = document.getElementById('oc-' + key);
+  if (card) {
+    card.classList.add('done');
+    card.querySelectorAll('.ac-btn').forEach(b => { b.className = 'ac-btn ac-done'; b.textContent = '✓ Done'; b.disabled = true; });
+  }
+
+  playAlert('confirm');
+  addPharmLog(`<strong>Dispatched:</strong> ${name} → OR-3`);
+  showToast('🚚 Dispatched to OR-3', `${name} is on its way`, 'ok');
+  addAlert(`✓ Pharmacy dispatched: ${name}`, 'En route to OR-3', 'ok');
+  updatePharmStats();
+}
+
+function updatePharmStats() {
+  const t = document.getElementById('ps-total');
+  if (t) t.textContent = state.orderCount;
+  const p = document.getElementById('ps-pending');
+  if (p) p.textContent = state.pendingCount;
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MAIN LOOP
+// ═══════════════════════════════════════════════════════════════
+function startLoop() {
+  setInterval(() => {
+    // Normal vitals variation
+    if (!state.anomaly) {
+      state.hr += state.hrDir * (Math.random() * 0.35);
+      if (state.hr > 77 || state.hr < 67) state.hrDir *= -1;
+      const hr = Math.round(state.hr);
+      const spo2 = Math.round(97 + Math.random() * 2);
+      const sys = 115 + Math.round(Math.random() * 8);
+      const dia = 72 + Math.round(Math.random() * 6);
+      const tmp = (36.5 + Math.random() * 0.4).toFixed(1);
+      document.getElementById('v-hr').textContent = hr;
+      document.getElementById('v-spo2').textContent = spo2;
+      document.getElementById('v-bp').textContent = sys + '/' + dia;
+      document.getElementById('v-temp').textContent = tmp;
+      document.getElementById('doc-hr').textContent = hr + ' bpm';
+      document.getElementById('doc-spo2').textContent = spo2 + '%';
+      document.getElementById('doc-bp').textContent = sys + '/' + dia;
+      document.getElementById('doc-temp').textContent = tmp + '°';
+    }
+
+    // Event sequence
+    state.lastEvent--;
+    if (state.lastEvent <= 0 && state.seqIdx < critSeq.length) {
+      triggerCritical(critSeq[state.seqIdx]);
+      state.seqIdx++;
+      state.lastEvent = state.seqIdx < critSeq.length ? 35 : 99999;
+    }
+
+    drawECG();
+    updateWaves();
+  }, 100);
+
+  // Auto-flag rocuronium after 12s
+  setTimeout(() => {
+    if (!state.orderedDrugs.has('rocuronium')) {
+      addAlert('⚠ AI: Rocuronium low stock — 31%', 'Order recommended immediately', 'warn');
+      showToast('⚠ Rocuronium Low', 'AI recommends ordering now', 'warn');
+      playAlert('warning');
+    }
+  }, 12000);
+}
+
+window.addEventListener('resize', () => { resizeECG(); });
+</script>
+</body>
+</html>
